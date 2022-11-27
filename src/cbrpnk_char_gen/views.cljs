@@ -4,40 +4,51 @@
    [cbrpnk-char-gen.styles :as styles]
    [cbrpnk-char-gen.events :as events]
    [cbrpnk-char-gen.routes :as routes]
-   [cbrpnk-char-gen.subs :as subs]
-   ))
+   [cbrpnk-char-gen.subs :as subs]))
 
+
+(defn text-input [id label]
+  (let [value (re-frame/subscribe [::subs/form id])]
+    [:div.field.row.g-2
+     [:label.col-form-label.col-auto {:for id} label]
+     [:div.col-auto
+      [:input.form-control {:type "text"
+                            :id id
+                            :value @value
+                            :on-change #(re-frame/dispatch [::events/update-form id (-> % .-target .-value)])}]]]))
 
 ;; home
 
 (defn home-panel []
-  (let [name (re-frame/subscribe [::subs/name])]
-    [:div
-     [:h1
-      {:class (styles/level1)}
-      (str "Hello from " @name ". This is the Home Page.")]
+  [:div
+   [:h1
+    (str "Welcome to the character generator!")]
 
-     [:div
-      [:a {:on-click #(re-frame/dispatch [::events/navigate :about])}
-       "go to About Page"]]
-     ]))
+   [:div
+    [:button.btn.btn-primary {:on-click #(re-frame/dispatch [::events/navigate :create])}
+     "Create Character"]]])
 
 (defmethod routes/panels :home-panel [] [home-panel])
 
-;; about
+(defn create-char-form []
+  [:div.form (text-input :name "Name")]
+  )
 
-(defn about-panel []
+(defn create-panel []
   [:div
-   [:h1 "This is the About Page."]
+   [:h1.pb-4 "Your Character"]
 
-   [:div
-    [:a {:on-click #(re-frame/dispatch [::events/navigate :home])}
+   (create-char-form)
+
+   [:div.py-4
+    [:button.btn.btn-primary {:on-click #(re-frame/dispatch [::events/navigate :home])}
      "go to Home Page"]]])
 
-(defmethod routes/panels :about-panel [] [about-panel])
+(defmethod routes/panels :create-panel [] [create-panel])
 
 ;; main
 
 (defn main-panel []
   (let [active-panel (re-frame/subscribe [::subs/active-panel])]
-    (routes/panels @active-panel)))
+    [:div.container.py-4
+     (routes/panels @active-panel)]))

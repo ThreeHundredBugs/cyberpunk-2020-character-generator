@@ -11,3 +11,8 @@
  ::active-panel
  (fn [db _]
    (:active-panel db)))
+
+(re-frame/reg-sub
+ ::form
+ (fn [db [_ id]]
+   (get-in db [:form id])))

@@ -16,3 +16,8 @@
  ::form
  (fn [db [_ id]]
    (get-in db [:form id])))
+
+#_(re-frame/reg-sub
+ ::stats
+ (fn [db]
+   (get-in db [:form :stats])))

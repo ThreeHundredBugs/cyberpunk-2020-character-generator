@@ -15,7 +15,22 @@
 (re-frame/reg-sub
  ::form
  (fn [db [_ id]]
-   (get-in db [:form id])))
+   (id db)))
+
+(re-frame/reg-sub
+ ::get-stat
+ (fn [db [_ id]]
+   (get-in db [:stats id])))
+
+(re-frame/reg-sub
+ ::points
+ (fn [db]
+   (:points db)))
+
+(re-frame/reg-sub
+ ::current-points
+ (fn [db]
+   (:current-points db)))
 
 #_(re-frame/reg-sub
  ::stats

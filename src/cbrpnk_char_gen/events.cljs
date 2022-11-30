@@ -22,4 +22,14 @@
 (re-frame/reg-event-db
  ::update-form
  (fn [db [_ id val]]
-   (assoc-in db [:form id] val)))
+   (assoc db id val)))
+
+(re-frame/reg-event-db
+ ::update-stats
+ (fn [db [_ id val]]
+   (let [db (assoc-in db [:stats id] val)
+         current-points (reduce + (vals (:stats db)))
+         db (assoc db :current-points current-points)]
+     (if (> current-points (:points db))
+       (assoc db :stats-warning true)
+       (assoc db :stats-warning false)))))

@@ -1,13 +1,14 @@
 (ns cbrpnk-char-gen.db)
 
 (def default-db
-  {:form {:role                 "Рокербой"
-          :stats/intellect      0
-          :stats/reflex         0
-          :stats/technique      0
-          :stats/cool           0
-          :stats/attractiveness 0
-          :stats/luck           0
-          :stats/move           0
-          :stats/body           0
-          :stats/empathy        0}})
+  {:role   "Рокербой"
+   :stats  {:intellect      0
+            :reflex         0
+            :technique      0
+            :cool           0
+            :attractiveness 0
+            :luck           0
+            :move           0
+            :body           0
+            :empathy        0}
+   :points (+ 9 (rand-int 81))})

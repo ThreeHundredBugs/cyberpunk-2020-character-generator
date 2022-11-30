@@ -27,6 +27,16 @@
                               :on-change #(re-frame/dispatch [::events/update-form id (-> % .-target .-value)])}
         (map (fn [o] [:option {:key o :value o} o]) options)]]]]))
 
+(defn select-stat-input [id label]
+  (let [value (re-frame/subscribe [::subs/get-stat id])]
+    [:div.field.row.g-2.py-2
+     [:label.col-form-label.col-auto label]
+     [:div.control.col-auto
+      [:div.select
+       [:select.form-control {:value @value
+                              :on-change #(re-frame/dispatch [::events/update-stats id (-> % .-target .-value js/parseInt)])}
+        (map (fn [o] [:option {:key o :value o} o]) [0 1 2 3 4 5 6 7 8 9 10])]]]]))
+
 ;; home
 
 (defn home-panel []
@@ -41,37 +51,45 @@
 (defmethod routes/panels :home-panel [] [home-panel])
 
 (defn stats []
-  (let [move      @(re-frame/subscribe [::subs/form :stats/move])
-        body      @(re-frame/subscribe [::subs/form :stats/body])
-        run       (* 3 move)
-        jump      (/ move 4)
-        savethrow body
-        mbody     (cond
-                    (<= body 2)                  0
-                    (and (> body 2) (<= body 4)) 1
-                    (and (> body 4) (<= body 7)) 2
-                    (and (> body 7) (<= body 9)) 3
-                    (= body 10)                  4
-                    :else                        5)
-        postpone  (* 10 body)
-        raise     (* 40 body)
-        ]
-    (def stats stats)
+  (let [points         @(re-frame/subscribe [::subs/points])
+        current-points @(re-frame/subscribe [::subs/current-points])
+        stats-warning  @(re-frame/subscribe [::subs/form :stats-warning])
+        move           @(re-frame/subscribe [::subs/get-stat :move])
+        body           @(re-frame/subscribe [::subs/get-stat :body])
+        run            (* 3 move)
+        jump           (/ run 4)
+        savethrow      body
+        mbody          (cond
+                         (<= body 2)                  0
+                         (and (> body 2) (<= body 4)) 1
+                         (and (> body 4) (<= body 7)) 2
+                         (and (> body 7) (<= body 9)) 3
+                         (= body 10)                  4
+                         :else                        5)
+        postpone       (* 10 body)
+        raise          (* 40 body)]
+
     [:div.row.g-2
      [:div.col-auto
       [:div.card
+       (when stats-warning
+         {:class :border-danger})
        [:div.card-body
         [:h5.card-title "Статы"]
         [:div.card-text.container.g-2
-         (select-input :stats/intellect      :Интеллект         [0 1 2 3 4 5 6 7 8 9])
-         (select-input :stats/reflex         :Рефлекс           [0 1 2 3 4 5 6 7 8 9])
-         (select-input :stats/technique      :Техника           [0 1 2 3 4 5 6 7 8 9])
-         (select-input :stats/cool           :Крутость          [0 1 2 3 4 5 6 7 8 9])
-         (select-input :stats/attractiveness :Привлекательность [0 1 2 3 4 5 6 7 8 9])
-         (select-input :stats/luck           :Удача             [0 1 2 3 4 5 6 7 8 9])
-         (select-input :stats/move           :Передвижение      [0 1 2 3 4 5 6 7 8 9])
-         (select-input :stats/body           :Тело              [0 1 2 3 4 5 6 7 8 9])
-         (select-input :stats/empathy        :Эмпатия           [0 1 2 3 4 5 6 7 8 9])
+         (when stats-warning
+           [:div.alert.alert-danger
+            "Недостаточно очков!"])
+         [:div (str "Количество очков: " (- points current-points))]
+         (select-stat-input :intellect      :Интеллект)
+         (select-stat-input :reflex         :Рефлекс)
+         (select-stat-input :technique      :Техника)
+         (select-stat-input :cool           :Крутость)
+         (select-stat-input :attractiveness :Привлекательность)
+         (select-stat-input :luck           :Удача)
+         (select-stat-input :move           :Передвижение)
+         (select-stat-input :body           :Тело)
+         (select-stat-input :empathy        :Эмпатия)
 
          [:div.row.g-2.py-2
           [:label.col-auto "Бег"]
@@ -117,7 +135,8 @@
    (create-char-form)
 
    [:div.py-4
-    [:button.btn.btn-primary {:on-click #(re-frame/dispatch [::events/navigate :home])}
+    [:button.btn.btn-outline-primary
+     {:on-click #(re-frame/dispatch [::events/navigate :home])}
      "Назад"]]])
 
 (defmethod routes/panels :create-panel [] [create-panel])

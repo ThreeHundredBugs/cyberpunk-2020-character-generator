@@ -2,7 +2,8 @@
   (:require
    [re-frame.core :as re-frame]
    [cbrpnk-char-gen.db :as db]
-   [day8.re-frame.tracing :refer-macros [fn-traced]]))
+   [day8.re-frame.tracing :refer-macros [fn-traced]]
+   [cbrpnk-char-gen.subs :as subs]))
 
 (re-frame/reg-event-db
  ::initialize-db
@@ -33,3 +34,16 @@
      (if (> current-points (:points db))
        (assoc db :stats-warning true)
        (assoc db :stats-warning false)))))
+
+;; TODO: ability level
+#_(defn generate-money []
+  (let [role @(re-frame/subscribe [::subs/form :role])
+        month (/ (inc (rand-int 6)) 3)]
+    (case role)
+    ))
+
+#_(re-frame/reg-event-db
+ ::update-form
+ (fn [db [_ id val]]
+   (let [money (generate-money)]
+     (assoc db id val))))

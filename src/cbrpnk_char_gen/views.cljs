@@ -24,7 +24,7 @@
      [:div.control.col-auto
       [:div.select
        [:select.form-control {:value @value
-                              :on-change #(re-frame/dispatch [::events/update-role id (-> % .-target .-value)])}
+                              :on-change #(re-frame/dispatch [::events/update-form id (-> % .-target .-value)])}
         (map (fn [o] [:option {:key o :value o} o]) options)]]]]))
 
 (defn select-stat-input [id label]

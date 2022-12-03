@@ -4,7 +4,8 @@
    [cbrpnk-char-gen.styles :as styles]
    [cbrpnk-char-gen.events :as events]
    [cbrpnk-char-gen.routes :as routes]
-   [cbrpnk-char-gen.subs :as subs]))
+   [cbrpnk-char-gen.subs :as subs]
+   [cbrpnk-char-gen.db :as db]))
 
 
 (defn text-input [id label]
@@ -17,7 +18,7 @@
                             :value @value
                             :on-change #(re-frame/dispatch [::events/update-form id (-> % .-target .-value)])}]]]))
 
-(defn select-role-input [id label options & [opts]]
+(defn select-input [id label options & [opts]]
   (let [value (re-frame/subscribe [::subs/form id])]
     [:div.field.row.g-2.py-2
      [:label.col-form-label.col-auto label]
@@ -106,11 +107,16 @@
          (text-row "Модификатор телосложения" mbody)
          (text-row "Человечность" humanity)]]]]]))
 
-#_(defn money []
-  (let [role @(re-frame/subscribe [::subs/form :role])]
-    [:div.row.g-2.py-2
-     [:label.col-auto "Деньги"]
-     [:div.col-auto.text-secondary "1000"]]))
+(defn money []
+  (add-watch db/atom-money
+             :money
+                (fn [key ref old-state new-state]
+                (re-frame/dispatch [::events/update-form :money new-state])))
+
+    (let [money @(re-frame/subscribe [::subs/form :money])]
+      (text-row "Деньги" money))
+  )
+
 
 (defn history []
   (let [history @(re-frame/subscribe [::subs/form :history])]
@@ -141,12 +147,26 @@
                (text-row "Возраст" (get sibling :age))
                (text-row "Отношения" (get sibling :relations))])])
         [:h5.card-title "Мотивы"]
-        ]]]]))
+        [:div.card-text.mb-2
+         (text-row "Характер" (get-in history [:motives :character]))
+         (text-row "Важный человек" (get-in history [:motives :valuable-person]))
+         (text-row "Важная вещь" (get-in history [:motives :valuable-thing]))
+         (text-row "Отношение к людям" (get-in history [:motives :attitude-towards-people]))
+         (text-row "Хобби" (get-in history [:motives :hobby]))]
+        [:h5.card-title "Предыстория"]
+        [:div.card-text.mb-2
+         (text-row "Всего лет" (get-in history [:age]))
+         (for [event (get-in history [:events])]
+           [:div
+            [:hr]
+            (text-row "Возраст" (get event :age))
+            (text-row "Событие" (get event :event))])]]]]]))
 
 (defn create-char-form []
   [:div.form
+   (money)
    (text-input :name :Прозвище)
-   (select-role-input :role :Класс ["Рокербой" "Соло" "Нетраннер" "Техник" "Медиа" "Коп" "Корпорат" "Фиксер" "Номад"])
+   (select-input :role :Класс ["Рокербой" "Соло" "Нетраннер" "Техник" "Медиа" "Коп" "Корпорат" "Фиксер" "Номад"])
    (stats)
 
    (history)

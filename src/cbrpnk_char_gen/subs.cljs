@@ -32,6 +32,11 @@
  (fn [db]
    (:current-points db)))
 
+(re-frame/reg-sub
+ ::get-money
+ (fn [db]
+   @(:money db)))
+
 #_(re-frame/reg-sub
  ::stats
  (fn [db]

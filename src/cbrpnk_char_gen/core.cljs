@@ -22,5 +22,6 @@
 (defn init []
   (routes/start!)
   (re-frame/dispatch-sync [::events/initialize-db])
+  (re-frame/dispatch-sync [::events/generate-init-data])
   (dev-setup)
-  (mount-root))
+  (js/setTimeout #(mount-root) 300))

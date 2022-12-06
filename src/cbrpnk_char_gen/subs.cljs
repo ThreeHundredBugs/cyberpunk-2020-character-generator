@@ -20,7 +20,7 @@
 (re-frame/reg-sub
  ::get-stat
  (fn [db [_ id]]
-   (get-in db [:stats id])))
+   (id @(:stats db))))
 
 (re-frame/reg-sub
  ::points

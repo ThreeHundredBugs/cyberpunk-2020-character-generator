@@ -34,9 +34,13 @@
      [:label.col-form-label.col-auto label]
      [:div.control.col-auto
       [:div.select
-       [:select.form-control {:value @value
+       [:select.form-control {:value (:val @value)
                               :on-change #(re-frame/dispatch [::events/update-stats id (-> % .-target .-value js/parseInt)])}
-        (map (fn [o] [:option {:key o :value o} o]) [0 1 2 3 4 5 6 7 8 9 10])]]]]))
+        (map (fn [o] [:option {:key o :value o} o]) [0 1 2 3 4 5 6 7 8 9 10])]]]
+     [:div.col.text-secondary
+      (when (not (zero? (:mod @value)))
+        (:mod @value))]
+     ]))
 
 (defn text-row [label text]
   [:div.row.g-2.py-2
@@ -60,9 +64,9 @@
   (let [points         @(re-frame/subscribe [::subs/points])
         current-points @(re-frame/subscribe [::subs/current-points])
         stats-warning  @(re-frame/subscribe [::subs/form :stats-warning])
-        move           @(re-frame/subscribe [::subs/get-stat :move])
-        body           @(re-frame/subscribe [::subs/get-stat :body])
-        empathy        @(re-frame/subscribe [::subs/get-stat :empathy])
+        move           (:val @(re-frame/subscribe [::subs/get-stat :move]))
+        body           (:val @(re-frame/subscribe [::subs/get-stat :body]))
+        empathy        (:val @(re-frame/subscribe [::subs/get-stat :empathy]))
         run            (* 3 move)
         jump           (/ run 4)
         savethrow      body
@@ -108,13 +112,13 @@
          (text-row "Человечность" humanity)]]]]]))
 
 (defn money []
-  (add-watch db/atom-money
+  #_(add-watch db/atom-money
              :money
                 (fn [key ref old-state new-state]
                 (re-frame/dispatch [::events/update-form :money new-state])))
 
     (let [money @(re-frame/subscribe [::subs/form :money])]
-      (text-row "Деньги" money))
+      (text-row "Деньги" @money))
   )
 
 
